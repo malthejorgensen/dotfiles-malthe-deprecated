@@ -40,7 +40,11 @@ def ensure_dir_exists(path):
     return True
 
 
-def create_symlink(source_path, target_path):
+def create_symlink(source_path, target_path, replace_only=False):
+    if replace_only and not os.path.exists(target_path):
+        print('%s does not exist. Skipping due to `--replace-only`' % target_path)
+        return
+
     if os.path.exists(target_path):
         yesno = input(
             '`%s` exists - do you want to overwrite it? (Yes/No) ' % target_path
@@ -100,6 +104,11 @@ parser.add_argument(
     '-a', '--all', action='store_true', help='Install dotfiles for all apps'
 )
 parser.add_argument(
+    '--replace-only',
+    action='store_true',
+    help='Do not install new config files, only replace existing ones',
+)
+parser.add_argument(
     '--uninstall',
     action='store_true',
     help='Uninstall dotfiles for selected apps (pass --all to select all apps)',
@@ -137,6 +146,10 @@ for app_dir in app_dirs:
                 if args.uninstall:
                     uninstall_file(full_path_source, full_path_target)
                 else:
-                    create_symlink(full_path_source, full_path_target)
+                    create_symlink(
+                        full_path_source,
+                        full_path_target,
+                        replace_only=args.replace_only,
+                    )
             else:
                 print('Unknown type: ' + file['type'])
