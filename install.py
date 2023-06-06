@@ -64,6 +64,31 @@ def create_symlink(source_path, target_path, replace_only=False):
         os.symlink(source_path, target_path)
 
 
+def check_file(full_path_source: str, full_path_target: str):
+    if not os.path.exists(full_path_target):
+        print('%s does not exist.' % (full_path_target,))
+        return
+
+    if not os.path.islink(full_path_target):
+        print('%s exists but is not a symlink.' % (full_path_target,))
+        return
+
+    current_symlink_target = os.readlink(full_path_target)
+    if current_symlink_target != full_path_source:
+        print(
+            '%s is a symlink, but points to %s. Expected %s'
+            % (full_path_target, current_symlink_target, full_path_source)
+        )
+        return
+
+    if current_symlink_target == full_path_source:
+        print(
+            '%s is a symlink correctly pointing to %s'
+            % (full_path_target, full_path_source)
+        )
+        return
+
+
 def uninstall_file(full_path_source: str, full_path_target: str):
     if not os.path.exists(full_path_target):
         print('%s does not exist. Not uninstalling.' % (full_path_target,))
@@ -104,6 +129,11 @@ parser.add_argument(
     '-a', '--all', action='store_true', help='Install dotfiles for all apps'
 )
 parser.add_argument(
+    '--check',
+    action='store_true',
+    help='Check which dotfiles are already symlinked',
+)
+parser.add_argument(
     '--replace-only',
     action='store_true',
     help='Do not install new config files, only replace existing ones',
@@ -134,6 +164,7 @@ for app_dir in app_dirs:
     if not os.path.exists(dotfile_json_path):
         continue
 
+    print(app_dir)
     with open(dotfile_json_path) as dotfile:
         files = json.load(dotfile)
 
@@ -143,7 +174,9 @@ for app_dir in app_dirs:
                 full_path_target = parse_path(file['target'], path_app_dir)
                 assert os.path.exists(full_path_source)
 
-                if args.uninstall:
+                if args.check:
+                    check_file(full_path_source, full_path_target)
+                elif args.uninstall:
                     uninstall_file(full_path_source, full_path_target)
                 else:
                     create_symlink(
