@@ -120,7 +120,12 @@ else:
 this_directory = os.path.dirname(os.path.realpath(__file__))
 for app_dir in app_dirs:
     path_app_dir = os.path.join(this_directory, app_dir)
-    with open(app_dir + '/dotfile.json') as dotfile:
+    dotfile_json_path = app_dir + '/dotfile.json'
+
+    if not os.path.exists(dotfile_json_path):
+        continue
+
+    with open(dotfile_json_path) as dotfile:
         files = json.load(dotfile)
 
         for file in files:
