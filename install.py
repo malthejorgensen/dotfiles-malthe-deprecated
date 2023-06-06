@@ -60,9 +60,49 @@ def create_symlink(source_path, target_path):
         os.symlink(source_path, target_path)
 
 
+def uninstall_file(full_path_source: str, full_path_target: str):
+    if not os.path.exists(full_path_target):
+        print('%s does not exist. Not uninstalling.' % (full_path_target,))
+        return
+
+    if not os.path.islink(full_path_target):
+        print('%s is not a symlink. Not overwriting.' % (full_path_target,))
+        return
+
+    current_symlink_target = os.readlink(full_path_target)
+    if current_symlink_target != full_path_source:
+        print(
+            '%s points to %s. Expected %s. Not overwriting.'
+            % (full_path_target, current_symlink_target, full_path_source)
+        )
+        return
+
+    print('Copying %s to %s' % (full_path_source, full_path_target))
+    # Even with `follow_symlinks=False` `shutil.copyfile`/`shutil.copy2` will
+    # still raise `SameFileError` when the target is a symlink pointing to the
+    # source. Therefore, we have to remove the target first.
+    os.unlink(full_path_target)
+    if os.path.isdir(full_path_source):
+        shutil.copytree(
+            full_path_source,
+            full_path_target,
+        )
+    else:
+        shutil.copy2(
+            full_path_source,
+            full_path_target,
+            follow_symlinks=False,
+        )
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '-a', '--all', action='store_true', help='Install dotfiles for all apps'
+)
+parser.add_argument(
+    '--uninstall',
+    action='store_true',
+    help='Uninstall dotfiles for selected apps (pass --all to select all apps)',
 )
 parser.add_argument('app_dirs', nargs='*')  # , default=None)
 args = parser.parse_args()
@@ -88,6 +128,10 @@ for app_dir in app_dirs:
                 full_path_source = parse_path(file['source'], path_app_dir)
                 full_path_target = parse_path(file['target'], path_app_dir)
                 assert os.path.exists(full_path_source)
-                create_symlink(full_path_source, full_path_target)
+
+                if args.uninstall:
+                    uninstall_file(full_path_source, full_path_target)
+                else:
+                    create_symlink(full_path_source, full_path_target)
             else:
                 print('Unknown type: ' + file['type'])
