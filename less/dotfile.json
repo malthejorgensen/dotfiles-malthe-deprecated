@@ -1,0 +1,14 @@
+[
+  {
+    "comment": "",
+    "type": "symlink",
+    "source": "./.less",
+    "target": "~/.less"
+  },
+  {
+    "comment": "",
+    "type": "symlink",
+    "source": "./.lesskey",
+    "target": "~/.lesskey"
+  }
+]

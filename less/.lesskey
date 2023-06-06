@@ -1,0 +1,6 @@
+#env
+LESS = -i -R
+#commands
+l back-line
+k forw-line
+

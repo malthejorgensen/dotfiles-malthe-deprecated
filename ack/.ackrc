@@ -1,0 +1,29 @@
+
+
+
+# If the search regex is all lowercase, make the search case insensitive
+# i.e. make `ack` case insensitive by default
+--smart-case
+
+
+# `npm` sucks, anyone?
+--ignore-dir=node_modules
+
+# .tox and .eggs are directories created when doing Python testing
+--ignore-dir=.tox
+--ignore-dir=.eggs
+
+# No virtual environments, please
+--ignore-dir=.venv
+
+# Also no bower components
+--ignore-dir=bower_components
+
+# Javascript .map files (for minified .js-files or .coffee-files)
+# are not for humans
+--type-set=map=.map
+--no-map
+
+# Javascript .min.js files (minified .js-files) are not for humans
+--type-set=jsmin=.min.js
+--no-jsmin

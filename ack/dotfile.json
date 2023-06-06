@@ -1,0 +1,8 @@
+[
+  {
+    "comment": "",
+    "type": "symlink",
+    "source": "./.ackrc",
+    "target": "~/.ackrc"
+  }
+]
